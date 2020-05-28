@@ -187,22 +187,3 @@ f3pp:
     mov esp, ebp
     pop ebp
     ret
-    
-global f2p4
-f2p4:
-    push ebp
-    mov ebp, esp
-    
-    finit
-    fld qword[ebp + 8]
-    fld qword[const4]
-    fdiv
-    fdiv
-    fdiv
-    fdiv
-    fdivp
-    fchs
-    
-    mov esp, ebp
-    pop ebp
-    ret
