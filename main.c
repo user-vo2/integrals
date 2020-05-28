@@ -21,7 +21,7 @@ double max(double a, double b)
 {
     return (a > b) ? a : b;
 }
-
+//ahahahhahahahahah
 double root(double (*f)(double), double (*g)(double), double (*fp)(double), double (*gp)(double), double (*fpp)(double), double (*gpp)(double), double a, double b, double eps1)
 {
     double a1, b1, fa, fb, fbp, fap;
@@ -87,9 +87,13 @@ int main(void)
 {
     double a, b, c, ans;
     double eps1 = 0.001, eps2 = 0.001;
+    printf ("deb");
     a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
+    printf ("deb2");
     b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
+    printf ("deb3");
     c = root (f1, f2, f1p, f2p, f1pp, f2pp, l, r, eps1);
+    printf ("deb4");
     ans = integral(f1, f1p, a, c, eps2) - integral(f2, f2p4, b, c, eps2) - integral(f3, f3pp, a, b, eps2);
     printf("%lf", ans);
     return 0;
