@@ -42,8 +42,8 @@ f2:
     mov ebp, esp
     
     finit
-    fld qword[ebp + 8]
     fld1
+    fld qword[ebp + 8]
     fchs
     fdivp
     
@@ -57,13 +57,13 @@ f3:
     mov ebp, esp
     
     finit
+    fld qword[const2]
     fld qword[ebp + 8]
     fld1
     faddp
     fld qword[const1]
     fchs 
     fmulp
-    fld qword[const2]
     fdivrp
     
     mov esp, ebp
@@ -105,10 +105,11 @@ f2p:
     mov ebp, esp
     
     finit
-    fld qword[ebp + 8]
     fld1
-    fdiv
-    fdivp
+    fld qword[ebp + 8]
+    fdiv 
+    fld ST0
+    fmulp
     
     mov esp, ebp
     pop ebp
@@ -121,8 +122,8 @@ f3p:
     
     finit
     
-    fld qword[const2]
     fld qword[const1]
+    fld qword[const2]
     fdivp
     fchs
     
@@ -167,10 +168,13 @@ f2pp:
     finit
     fld qword[ebp + 8]
     fld qword[const1]
-    fdiv
-    fdiv
-    fdivp
+    fdiv ST0, ST1
+    fdiv ST0, ST1
+    fdiv ST0, ST1
+    fxch
+    fstp ST0
     fchs
+
     
     mov esp, ebp
     pop ebp

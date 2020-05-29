@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #define l -5.0
 #define r -0.1
 #define eps 1e-6
+#define BUF_SIZE 9
 
 int cnt = 0;
-
 
 extern double f1(double x);
 extern double f2(double x);
@@ -19,81 +20,18 @@ extern double f1pp(double x);
 extern double f2pp(double x);
 extern double f3pp(double x);
 
-/*
-double f1(double x)
-{
-    return exp(x) + 2;
-}
-
-
-double f2(double x)
-{
-    return -1/x;
-}
-
-double f3(double x)
-{
-    return -2.0 * (x + 1) / 3.0;
-}
-
-double f1p(double x)
-{
-    return exp(x);
-}
-
-double f2p(double x)
-{
-    return 1/x/x;
-}
-
-double f3p(double x)
-{
-    return -2/3;
-}
-
-double f1pp(double x)
-{
-    return f1p(x);
-}
-
-double f2pp(double x)
-{
-    return -2/x/x/x;
-}
-
-double f3pp(double x)
-{
-    return 0;
-}
-
-
-double f2p4(double x)
-{
-    return -24 /x/x/x/x/x;
-}
-*/
-
-
-//функция сравнения строк
-int cmp_str(char* s1, char* s2)
-{
-    int i = 0;
-    while (s1[i] != 0 && s2[i] != 0)
-    {
-        if (s1[i] != s2[i])
-        {
-            return -1;
-        }
-        i++;
-    }
-    return 0;
-}
-
+double (*f_1)(double);
+double (*f_2)(double);
+double (*f_1p)(double);
+double (*f_2p)(double);
+double (*f_1pp)(double);
+double (*f_2pp)(double);
 
 //нахождение абсцисс пересечения 
 double root(double (*f)(double), double (*g)(double), double (*fp)(double), double (*gp)(double), double (*fpp)(double), double (*gpp)(double), double a, double b, double eps1)
 {
     cnt++;
+    //printf("%lf %lf\n", a, b);
     double a1, b1, fa, fb, fbp, fap;
     fa = f(a) - g(a);
     fb = f(b) - g(b);
@@ -121,6 +59,8 @@ double root(double (*f)(double), double (*g)(double), double (*fp)(double), doub
 double integral(double (*f)(double), double a, double b, double eps2)
 {
     int n;
+    
+    
     double h, sum_int = 0;
     n = (floor ((b-a)/eps2) + 1) / 2 * 2;
     h = (b - a) / n;
@@ -139,8 +79,12 @@ double integral(double (*f)(double), double a, double b, double eps2)
 
 int main(int argc, char **argv)
 {
+    
+    char name[BUF_SIZE];
     int test_mode = 0;
-    char *help = "-help", **abs, **cnt_eq, *test = "-test";
+    char *help = "-help", *test = "-test", *integr = "integral", *rt = "root", *qt = "quit", *command_integr = "-integral";
+    char *abs[3];
+    char *cnt_eq[3];
     abs[0] = "-abs12";
     abs[1] = "-abs13";
     abs[2] = "-abs23";
@@ -149,36 +93,137 @@ int main(int argc, char **argv)
     cnt_eq[2] = "-eq23";
     double a, b, c, ans = 0;
     double eps1 = 0.001, eps2 = 0.001;
-    //printf ("deb");
     a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
-    //printf ("Iterations needed to find intersection between f(x) = exp(x) + 2 and g(x) = -2 * (x + 1) / 3 :     %d.\n", cnt);
-    cnt = 0;
     b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
-    //printf ("Iterations needed to find intersection between f(x) = -1 / x and g(x) = -2 * (x + 1) / 3     :     %d.\n", cnt);
-    cnt = 0;
     c = root (f1, f2, f1p, f2p, f1pp, f2pp, l, r, eps1);
-    //printf ("Iterations needed to find intersection between f(x) = exp(x) + 2 and g(x) = -1 / x           :     %d.\n", cnt);
     ans = integral(f1, a, c, eps2) - integral(f2, b, c, eps2) - integral(f3, a, b, eps2);
-    //printf("%lf", ans);
-    for (int i = 1; i <= argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if (cmp_str(argv[i], help) == 0)
+        if (strncmp(argv[i], "-help" , 5) == 0)
         {
             printf("write '-absxy' to find abscissa of intersection between fx and fy. (x > y)\n");
             printf("write '-eqxy' to find number of iterations needed to find intersection between fx and fy. (x > y)\n");
             printf("write '-test' to enter testing mode\n");
+            printf("write '-integral' to find integral with given values\n");
         }
-        if (cmp_str(argv[i], test) == 0)
+        if (strncmp(argv[i], "-test", 5) == 0)
         {
             test_mode = 1;
         }
-       /* for (int j = 0; j < 3; j++)
+        if (strncmp(argv[i], abs[0], 6) == 0)
         {
-            if (cmp_str(argv[i], abs[j]) == 0)
-            {
-            }
-        }*/
+            printf("%lf\n", c);
+        }
+        if (strncmp(argv[i], abs[1], 6) == 0)
+        {
+            printf("%lf\n", a);
+        }
+        if (strncmp(argv[i], abs[2], 6) == 0)
+        {
+            printf("%lf\n", b);
+        }
+        if (strncmp(argv[i], cnt_eq[0], 5) == 0)
+        {
+            cnt = 0;
+            root (f1, f2, f1p, f2p, f1pp, f2pp, l, r, eps1);
+            printf("%d\n", cnt);
+        }
+        if (strncmp(argv[i], cnt_eq[1], 5) == 0)
+        {
+            cnt = 0;
+            root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
+            printf("%d\n", cnt);
+        }
+        if (strncmp(argv[i], cnt_eq[2], 5) == 0)
+        {
+            cnt = 0;
+            root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
+            printf("%d\n", cnt);
+        }
+        if (strncmp(argv[i], command_integr, 9) == 0)
+        {
+            a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
+            b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
+            c = root (f1, f2, f1p, f2p, f1pp, f2pp, l, r, eps1);
+            ans = integral(f1, a, c, eps2) - integral(f2, b, c, eps2) - integral(f3, a, b, eps2);
+            printf("area between functions:   %lf\n", ans);
+        }
     }
-    
+    while (test_mode)
+    {
+        printf("enter 'quit' to exit testing\n");
+        printf("enter name of testing function or 'quit':  ");
+        scanf("%8s", name);
+        if(strncmp (name, rt, 4) == 0)
+        {
+            int num1, num2;
+            double left, right;
+            printf("enter numbers of tested functions, bounds and eps1 (num1 > num2)\n");
+            scanf("%d%d%lf%lf%lf", &num1, &num2, &left, &right, &eps1);
+            switch (num1)
+            {
+                case 1:
+                    f_1 = &f1;
+                    f_1p = &f1p;
+                    f_1pp = &f1pp;
+                    break;
+                case 2:
+                    f_1 = &f2;
+                    f_1p = &f2p;
+                    f_1pp = &f2pp;
+                    break;
+                default:
+                    break;
+            }
+            switch (num2)
+            {
+                case 2:
+                    f_2 = &f2;
+                    f_2p = &f2p;
+                    f_2pp = &f2pp;
+                    break;
+                case 3:
+                    f_2 = &f3;
+                    f_2p = &f3p;
+                    f_2pp = &f3pp;
+                    break;
+                default:
+                    break;
+            }
+            printf("%lf\n", root(f_1, f_2, f_1p, f_2p, f_1pp, f_2pp, left, right, eps1));
+        }
+        if(strncmp (name, integr, 8) == 0)
+        {
+            int num;
+            double left, right;
+            printf("enter number of tested function, bounds and eps2\n");
+            scanf("%d%lf%lf%lf", &num, &left, &right, &eps2);
+            switch (num)
+            {
+                case 1:
+                    f_1 = &f1;
+                    f_1p = &f1p;
+                    f_1pp = &f1pp;
+                    break;
+                case 2:
+                    f_1 = &f2;
+                    f_1p = &f2p;
+                    f_1pp = &f2pp;
+                    break;
+                case 3:
+                    f_1 = &f3;
+                    f_1p = &f3p;
+                    f_1pp = &f3pp;
+                    break;
+                default:
+                    break;
+            }
+            printf("%lf\n", integral(f_1, left, right, eps2));
+        }
+        if(strncmp (name, qt, 4) == 0)
+        {
+            break;
+        }
+    }
     return 0;
 }
