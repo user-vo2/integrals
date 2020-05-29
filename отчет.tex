@@ -1,0 +1,341 @@
+\documentclass[a4paper,12pt,titlepage,finall]{article}
+
+\usepackage[T1,T2A]{fontenc}     % форматы шрифтов
+\usepackage[utf8x]{inputenc}     % кодировка символов, используемая в данном файле
+\usepackage{amsmath}
+\usepackage[russian]{babel}      % пакет русификации
+\usepackage{tikz}                % для создания иллюстраций
+\usepackage{pgfplots}            % для вывода графиков функций
+\usepackage{geometry}        % для настройки размера полей
+\usepackage{indentfirst}         % для отступа в первом абзаце секции
+ 
+\usetikzlibrary{graphs}
+% выбираем размер листа А4, все поля ставим по 3см
+\geometry{a4paper,left=30mm,top=30mm,bottom=30mm,right=30mm}
+
+\setcounter{secnumdepth}{0}      % отключаем нумерацию секций
+
+\usepgfplotslibrary{fillbetween} % для изображения областей на графиках
+
+\begin{document}
+% Титульный лист
+\begin{titlepage}
+    \begin{center}
+    {\small \sc Московский государственный университет \\имени М.~В.~Ломоносова\\
+    Факультет вычислительной математики и кибернетики\\}
+    \vfill
+    {\Large \sc Отчет по заданию №6}\\
+    ~\\
+    {\large \bf <<Сборка многомодульных программ. \\
+    Вычисление корней уравнений и определенных интегралов.>>}\\ 
+    ~\\
+    {\large \bf Вариант 4 / 4 / 3}
+    \end{center}
+    \begin{flushright}
+    \vfill {Выполнил:\\
+    студент 102 группы\\
+    Воробьев~Е.~Р.\\
+    ~\\
+    Преподаватель:\\
+    Сенюкова~О.~В.}
+    \end{flushright}
+    \begin{center}
+    \vfill
+    {\small Москва\\2020}
+    \end{center}
+\end{titlepage}
+
+% Автоматически генерируем оглавление на отдельной странице
+\tableofcontents
+\newpage
+
+\section{Постановка задачи}
+
+Решалась задача нахождения площади плоской фигуры, ограниченной тремя кривыми. Требовалось реализовать метод Симпсона, для нахождения непосредственно площади плоской фигуры, ограниченной тремя кривыми. Для поиска вершин фигуры было необходимо использовать комбинированный метод (хорд и касательных) решения уравнений. Отрезок для применения метода нахождения корней должен был быть вычислен аналитически.\par
+
+\newpage
+
+\section{Математическое обоснование}
+
+Из графика функции(рис.~\ref{plot1}) ясно, что вся фигура лежит в диапазоне $[-5; 0]$. Так как функция $f(x) = -\frac{1}{x}$ имеет разрыв в точке $x = 0$, то правая граница поска пересечений функций равна $-0.1$. Корни всех уравнений лежат в диапазоне $[-5; -0.1]$, так как  
+$$f_{1}(-5) = e^{-5}+2 \approx 2.006737 $$
+$$f_{1}(-0.1) = e^{-0.1}+2 \approx 2.904837 $$
+$$f_{2}(-5) = -\frac{1}{-5} = 0.2 $$
+$$f_{2}(-0.1) = -\frac{1}{-0.1} = 10 $$
+$$f_{3}(-5) = -\frac{2(-5+1)}{3} \approx 2.666667 $$
+$$f_{3}(-0.1) = -\frac{2(-0.1+1)}{3} = 0.6 $$
+
+\begin{equation}
+ \begin{cases}
+   f_{2}(-5) < f_{1}(-5), \\
+   f_{2}(-0.1) > f_{1}(-0.1) 
+ \end{cases}
+\end{equation}
+
+\begin{equation}
+ \begin{cases}
+   f_{1}(-5) < f_{3}(-5), \\
+   f_{1}(-0.1) > f_{3}(-0.1) 
+ \end{cases}
+\end{equation}
+
+\begin{equation}
+ \begin{cases}
+   f_{2}(-5) < f_{3}(-5), \\
+   f_{2}(-0.1) > f_{3}(-0.1) 
+ \end{cases}
+\end{equation}
+
+Таким образом, точки пересечения кривых нужно искать в диапазоне $[-5; -0.1]$.\par
+Значение $\varepsilon_1$ выбрано равным $0.1$.Таким образом $\varepsilon_2 = \frac{\varepsilon}{\varepsilon_1} = 0.01$ 
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[% grid=both,                % рисуем координатную сетку (если нужно)
+             axis lines=middle,          % рисуем оси координат в привычном для математики месте
+             restrict x to domain=-5:1,  % задаем диапазон значений переменной x
+             restrict y to domain=-1:6,  % задаем диапазон значений функции y(x)
+             axis equal,                 % требуем соблюдения пропорций по осям x и y
+             enlargelimits,              % разрешаем при необходимости увеличивать диапазоны переменных
+             legend cell align=left,     % задаем выравнивание в рамке обозначений
+             scale=2]                    % задаем масштаб 2:1
+
+% первая функция
+% параметр samples отвечает за качество прорисовки
+\addplot[green,samples=256,thick] {exp(x)+2)};
+% описание первой функции
+\addlegendentry{$y=e^x+2$}
+
+% добавим немного пустого места между описанием первой и второй функций
+%\addlegendimage{empty legend}\addlegendentry{}
+
+% вторая функция
+% здесь необходимо дополнительно ограничить диапазон значений переменной x
+\addplot[blue,samples=256,thick] {-1/x};
+\addlegendentry{$y=-\frac{1}{x}$}
+
+% дополнительное пустое место не требуется, так как формулы имеют небольшой размер по высоте
+
+% третья функция
+\addplot[red,samples=256,thick] {-2*(x+1)/3};
+\addlegendentry{$y=-\frac{2(x+1)}{3}$}
+\end{axis}
+\end{tikzpicture}
+\caption{Плоская фигура, ограниченная графиками заданных уравнений}
+\label{plot1}
+\end{figure}
+
+\newpage
+
+\section{Результаты экспериментов}
+
+Координаты точек пересечения (таблица~\ref{table1}) и площадь полученной фигуры.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Кривые & $x$ & $y$ \\
+\hline
+1 и 2 & -0.298327 & 3.347602 \\
+2 и 3 & -1.830069 & 0.546427 \\
+1 и 3 & -4.041704 & 2.027795 \\
+\hline
+\end{tabular}
+\caption{Координаты точек пересечения}
+\label{table1}
+\end{table}
+
+
+Результаты проиллюстрированы графиком (рис.~\ref{plot2}).
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[% grid=both,                % рисуем координатную сетку (если нужно)
+             axis lines=middle,          % рисуем оси координат в привычном для математики месте
+             restrict x to domain=-5:1,  % задаем диапазон значений переменной x
+             restrict y to domain=-1:6,  % задаем диапазон значений функции y(x)
+             axis equal,                 % требуем соблюдения пропорций по осям x и y
+             enlargelimits,              % разрешаем при необходимости увеличивать диапазоны переменных
+             legend cell align=left,     % задаем выравнивание в рамке обозначений
+             scale=2,                    % задаем масштаб 2:1
+             xticklabels={,,},           % убираем нумерацию с оси x
+             yticklabels={,,}]           % убираем нумерацию с оси y
+
+% первая функция
+% параметр samples отвечает за качество прорисовки
+\addplot[green,samples=256,thick,name path=A] {exp(x)+2};
+% описание первой функции
+\addlegendentry{$y=e^x+2$}
+
+% добавим немного пустого места между описанием первой и второй функций
+%\addlegendimage{empty legend}\addlegendentry{}
+
+% вторая функция
+% здесь необходимо дополнительно ограничить диапазон значений переменной x
+\addplot[blue,samples=256,thick,name path=B] {-1/x};
+\addlegendentry{$y=-\frac{1}{x}$}
+
+% дополнительное пустое место не требуется, так как формулы имеют небольшой размер по высоте
+
+% третья функция
+\addplot[red,samples=256,thick,name path=C] {-2*(x+1)/3};
+\addlegendentry{$y=-\frac{2(x+1)}{3}$}
+
+% закрашиваем фигуру
+\addplot[blue!20,samples=256] fill between[of=A and B,soft clip={domain=-1.830069:-0.298327}];
+\addplot[blue!20,samples=256] fill between[of=A and C,soft clip={domain=-4.041704:-1.830069}];
+\addlegendentry{$S=3.829575$}
+
+% Поскольку автоматическое вычисление точек пересечения кривых в TiKZ реализовать сложно,
+% будем явно задавать координаты.
+\addplot[dashed] coordinates { (-4.041704, 2.027795) (-4.041704, 0) };
+\addplot[color=black] coordinates {(-4.041704, 0)} node [label={-90:{\small -4.041704}}]{};
+
+\addplot[dashed] coordinates { (-1.830069, 0.546427) (-1.830069, 0) };
+\addplot[color=black] coordinates {(-1.830069, 0)} node [label={-90:{\small -1.830069}}]{};
+
+\addplot[dashed] coordinates { (-0.298327, 3.347602) (-0.298327, 0) };
+\addplot[color=black] coordinates {(-0.298327, 0)} node [label={-90:{\small -0.298327}}]{};
+
+\end{axis}
+\end{tikzpicture}
+\caption{Плоская фигура, ограниченная графиками заданных уравнений}
+\label{plot2}
+\end{figure}
+
+\newpage
+
+\section{Структура программы и спецификация функций}
+
+\begin{itemize}
+\item double f1(double x) \par
+    Функция вычисляет и возвращает значение функции $f(x) = e^x+2$ в точке $x$.
+\item double f2(double x) \par
+    Функция вычисляет и возвращает значение функции $f(x) = -\frac{1}{x}$ в точке $x$.
+\item double f3(double x) \par
+    Функция вычисляет и возвращает значение функции $f(x) = -\frac{2*(x+1)}{3}$ в точке $x$.
+\item double f1p(double x) \par
+    Функция вычисляет и возвращает значение первой производной функции $f(x) = e^x+2$ в точке $x$.
+\item double f2p(double x) \par
+    Функция вычисляет и возвращает значение первой производной функции $f(x) = -\frac{1}{x}$ в точке $x$.
+\item double f3p(double x) \par
+    Функция вычисляет и возвращает значение первой производной функции $f(x) = -\frac{2*(x+1)}{3}$ в точке $x$.
+\item double f1pp(double x) \par
+    Функция вычисляет и возвращает значение второй производной функции $f(x) = e^x+2$ в точке $x$.
+\item double f2pp(double x) \par
+    Функция вычисляет и возвращает значение второй производной функции $f(x) = -\frac{1}{x}$ в точке $x$.
+\item double f3pp(double x) \par
+    Функция вычисляет и возвращает значение второй производной функции $f(x) = -\frac{2*(x+1)}{3}$ в точке $x$.
+\item double root(double (*f)(double), double (*g)(double), double (*fp)(double), double (*gp)(double), double (*fpp)(double), double (*gpp)(double), double a, double b, double eps1) \par
+    В данной функции реализован комбинированный метод нахождение корня уравнения $f(x) = g(x)$ с точностью $\varepsilon_1$ на отрезке [a ,b]. Возвращает точку пересечения функций $f(x)$ и $g(x)$.
+\item double integral(double (*f)(double), double a, double b, double eps2) \par
+    В данной функции реализован метод Симпсона нахождения $\int_a^b f(x)dx$ с точностью $\varepsilon_2$. Возвращает значение интеграла.
+\end{itemize}
+
+\begin{tikzpicture}
+    \graph[nodes={align=center}, grow down sep, branch right sep] {
+       {
+            main -> "main.c" -> "main.o"  -> program;
+            integral -> "main.c" -> "main.o"  -> program;
+            root -> "main.c" -> "main.o"  -> program;
+            f1 -> "functions.asm" -> "functions.o" -> program;
+            f2 -> "functions.asm" -> "functions.o" -> program;
+            f3 -> "functions.asm" -> "functions.o" -> program;
+            f1p -> "functions.asm" -> "functions.o" -> program;
+            f2p -> "functions.asm" -> "functions.o" -> program;
+            f3p -> "functions.asm" -> "functions.o" -> program;
+            f1pp -> "functions.asm" -> "functions.o" -> program;
+            f2pp -> "functions.asm" -> "functions.o" -> program;
+            f3pp -> "functions.asm" -> "functions.o" -> program;
+       }
+    };
+\end{tikzpicture}
+
+\newpage
+
+\section{Сборка программы (Make-файл)}
+
+\begin{verbatim}
+all: program
+program: main.o functions.o
+    gcc -m32 -o program main.o functions.o -lm
+main.o: main.c
+    gcc -m32 -std=c99 -c main.c
+functions.o: functions.asm
+    nasm -f elf32 functions.asm
+clear:
+    rm *.o
+\end{verbatim}
+
+\begin{tikzpicture}
+    \graph[nodes={align=center}, grow down sep, branch right sep] {
+       {
+            "main.c" -> "main.o" -> makefile -> program;
+            "functions.asm" -> "functions.o"-> makefile -> program
+       }
+    };
+\end{tikzpicture}
+
+\newpage
+
+\section{Отладка программы, тестирование функций}
+
+Тестирование и отладка производилачь при помощи опции командной строки  \textit{-test}.
+
+\subsection{Тестирование функции вычисления корня}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+     тест & номера функций & левая граница & правая граница & точность & ответ \\
+    \hline
+     1 & 1 и 2 & -1.0 & -0.1 & 0.1 & -0.377906 \\
+    \hline
+     2 & 1 и 3 & -5.0 & -3.0 & 0.01 & -4.041710 \\
+    \hline
+     3 & 2 и 3 & -2.0 & -1.0 & 0.001 & -1.822878 \\
+    \hline
+\end{tabular}
+\end{table}
+\clearpage
+
+\subsection{Тестирование функции вычисления интеграла}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+    тест & номер функции & нижняя граница & верхняя граница & точность & ответ \\
+    \hline
+     1 & 1 & -3.0 & 1.0 & 0.1  & 9.723013 \\
+    \hline
+     2 & 2 & -3.0 & -2.0 & 0.01  & 0.393999 \\
+    \hline
+     3 & 3 & -4.0 & -3.0 & 0.001  & 1.663556 \\
+    \hline
+\end{tabular}
+\end{table}
+\clearpage
+
+\newpage
+
+\section{Программа на Си и на Ассемблере}
+
+Исходные тексты программы имеются в архиве, который приложен к этому отчету.
+
+\newpage
+
+\section{Анализ допущенных ошибок}
+
+\newpage
+\begin{raggedright}
+\addcontentsline{toc}{section}{Список цитируемой литературы}
+\begin{thebibliography}{99}
+\bibitem{math} Ильин~В.\,А., Садовничий~В.\,А., Сендов~Бл.\,Х. Математический анализ. Т.\,1~---
+    Москва: Наука, 1985.
+\end{thebibliography}
+\end{raggedright}
+\end{document}

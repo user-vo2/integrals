@@ -92,11 +92,15 @@ int main(int argc, char **argv)
     cnt_eq[1] = "-eq13";
     cnt_eq[2] = "-eq23";
     double a, b, c, ans = 0;
-    double eps1 = 0.001, eps2 = 0.001;
+    double eps1 = 0.1, eps2 = 0.01;
     a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
+    printf("%lf %lf\n",a, f1(a));
     b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
+    printf("%lf %lf\n",b, f2(b));
     c = root (f1, f2, f1p, f2p, f1pp, f2pp, l, r, eps1);
+    printf("%lf %lf\n",c, f1(c));
     ans = integral(f1, a, c, eps2) - integral(f2, b, c, eps2) - integral(f3, a, b, eps2);
+    printf("%lf\n", ans);
     for (int i = 1; i < argc; i++)
     {
         if (strncmp(argv[i], "-help" , 5) == 0)
