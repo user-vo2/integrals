@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,7 +9,7 @@
 #define eps 1e-6
 #define BUF_SIZE 9
 
-int cnt = 0;
+int cnt = 0;  // переменная для подсчета итераций в функции root
 
 extern double f1(double x);
 extern double f2(double x);
@@ -27,12 +28,11 @@ double (*f_2p)(double);
 double (*f_1pp)(double);
 double (*f_2pp)(double);
 
-//нахождение абсцисс пересечения 
+//нахождение абсцисс пересечения v 2.0
 double root(double (*f)(double), double (*g)(double), double (*fp)(double), double (*gp)(double), double (*fpp)(double), double (*gpp)(double), double a, double b, double eps1)
 {
     cnt++;
-    //printf("%lf %lf\n", a, b);
-    double a1, b1, fa, fb, fbp, fap;
+    double a1 = a, b1 = b, fa, fb, fbp, fap;
     fa = f(a) - g(a);
     fb = f(b) - g(b);
     fbp = fp(b) - gp(b);
@@ -42,36 +42,42 @@ double root(double (*f)(double), double (*g)(double), double (*fp)(double), doub
         a1 = a - fa * (b - a) / (fb - fa);
         b1 = b - fb / fbp;
     }
-    else
+    else if (fbp * (fpp(b) - gpp(b)) > 0)
     {
         a1 = a - fa / fap;
         b1 = b - fb * (b - a) / (fb - fa);
     }
-    if ((b1 - a1) > eps1)
+    if (a > a1 || b < b1 || (f(a1) - g(a1)) * (f(b1) - g(b1)) > 0)
+    {
+        a1 = (a + b) / 2;
+        b1 = b;
+    }
+    if (fabs(b1 - a1) > eps1)
     {
         return root(f, g, fp, gp, fpp, gpp, a1, b1, eps1);
     }
     return a1;
 }
 
-
 //подсчет интеграла
 double integral(double (*f)(double), double a, double b, double eps2)
 {
     int n;
     
-    
     double h, sum_int = 0;
-    n = (floor ((b-a)/eps2) + 1) / 2 * 2;
-    h = (b - a) / n;
+    n = (floor ((b-a)/eps2) + 1) / 2;
+    h = (b - a) / (2 * n);
     sum_int = f(a) + f(b);
-    int i = 1;
-    while (i < n/2)
+    for(int i = 1; i < n; i++)
     {
-        sum_int += 2 * f(a + 2 * i * h) + 4 * f(a + (2 * i - 1) * h);
-        i++;
+        sum_int += 2 * f(a + 2 * i * h);
     }
-    sum_int *= h / 3;
+    for(int i = 1; i <= n; i++)
+    {
+        sum_int += 4 * f(a + (2 * i - 1) * h);
+    }
+    sum_int *= h;
+    sum_int /= 3;
     return sum_int;
 }
 
@@ -92,7 +98,7 @@ int main(int argc, char **argv)
     cnt_eq[1] = "-eq13";
     cnt_eq[2] = "-eq23";
     double a, b, c, ans = 0;
-    double eps1 = 0.1, eps2 = 0.01;
+    double eps1 = 0.01, eps2 = 0.1;
     a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
     printf("%lf %lf\n",a, f1(a));
     b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);

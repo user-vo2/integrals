@@ -13,24 +13,19 @@ f1:
     finit
     fld    qword[ebp + 8]
     fldl2e
-    fmulp
+    fmulp st1, st0
+    fld st0
     frndint
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fsubp
+    fsub st1, st0
+    fxch st1
     f2xm1
     fld1
-    faddp
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fxch
+    faddp st1, st0
     fscale
     fxch
     fstp st0
     fld    qword[const1]
-    faddp
+    faddp st1, st0
     
     mov esp, ebp
     pop ebp
@@ -78,19 +73,14 @@ f1p:
     finit
     fld    qword[ebp + 8]
     fldl2e
-    fmulp
+    fmulp st1, st0
+    fld st0
     frndint
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fsubp
+    fsub st1, st0
+    fxch st1
     f2xm1
     fld1
-    faddp
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fxch
+    faddp st1, st0
     fscale
     fxch
     fstp st0
@@ -139,22 +129,19 @@ f1pp:
     finit
     fld    qword[ebp + 8]
     fldl2e
-    fmulp
+    fmulp st1, st0
+    fld st0
     frndint
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fsubp
+    fsub st1, st0
+    fxch st1
     f2xm1
     fld1
-    faddp
-    fld    qword[ebp + 8]
-    fldl2e
-    fmulp
-    fxch
+    faddp st1, st0
     fscale
     fxch
     fstp st0
+    fld    qword[const1]
+    faddp st1, st0
     
     mov esp, ebp
     pop ebp
