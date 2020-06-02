@@ -88,7 +88,13 @@ $$f_{3}(-0.1) = -\frac{2(-0.1+1)}{3} = 0.6 $$
 
 Таким образом, точки пересечения кривых нужно искать в диапазоне $[-5; -0.1]$.\par
 
-Значение $\varepsilon_1$ выбрано равным $0.1$.Таким образом $\varepsilon_2 = \frac{\varepsilon}{\varepsilon_1} = 0.01$ 
+Для определения погрешности значения интеграла $\varepsilon_2$ воспользуемся функцией:
+$$G(t) = - \frac{t^5}{2880n^4}{{f^{(4)}(\zeta)}}, \ \ \ \zeta \in [a,b].$$
+Так как погрешность вычисления корней уравнения равна $\varepsilon_1$, то:
+$$\varepsilon_2*|G(2\varepsilon_1+b-a)-G(b-a)| < \varepsilon$$
+т.к. $2880n^4 > 1, (n \in N); b-a > 1$ в силу выбора отрезка, то после упростив выражение получим: $$\varepsilon_2(32\varepsilon_1^5+80\varepsilon_1^4+80\varepsilon_1^3+40\varepsilon_1^2+10\varepsilon_1)<\varepsilon$$
+Отсюда следует, что можно выбрать $\varepsilon_1 = 0.01; \varepsilon_2 = 0.001$.\par
+
 
 \begin{figure}[h]
 \centering

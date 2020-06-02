@@ -6,7 +6,6 @@
 
 #define l -5.0
 #define r -0.1
-#define eps 1e-6
 #define BUF_SIZE 9
 
 int cnt = 0;  // переменная для подсчета итераций в функции root
@@ -98,7 +97,7 @@ int main(int argc, char **argv)
     cnt_eq[1] = "-eq13";
     cnt_eq[2] = "-eq23";
     double a, b, c, ans = 0;
-    double eps1 = 0.01, eps2 = 0.1;
+    double eps1 = 0.01, eps2 = 0.001;
     a = root (f1, f3, f1p, f3p, f1pp, f3pp, l, r, eps1);
     printf("%lf %lf\n",a, f1(a));
     b = root (f2, f3, f2p, f3p, f2pp, f3pp, l, r, eps1);
